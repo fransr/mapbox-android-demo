@@ -32,6 +32,8 @@ public class OfflinePluginActivity extends AppCompatActivity {
 
         // Customize map with markers, polylines, etc.
 
+
+
       }
     });
   }
