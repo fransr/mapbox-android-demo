@@ -287,7 +287,7 @@
         </activity>
         <activity
             android:name=".examples.styles.HillShadeActivity"
-            android:label="@string/activity_styles_local_style_or_raster_source_title">
+            android:label="@string/activity_styles_hillshade_title">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mapbox.mapboxandroiddemo.MainActivity" />
