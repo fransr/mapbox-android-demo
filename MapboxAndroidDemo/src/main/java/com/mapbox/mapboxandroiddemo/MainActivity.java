@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
           R.string.activity_style_image_source_url, false, BuildConfig.MIN_SDK_VERSION
         ));
         exampleItemModels.add(new ExampleItemModel(
-          R.string.activity_style_hillshade_title,
+          R.string.activity_styles_hillshade_title,
           R.string.activity_style_hillshade_description,
           new Intent(MainActivity.this, HillShadeActivity.class),
           R.string.activity_style_hillshade_url, false, BuildConfig.MIN_SDK_VERSION
