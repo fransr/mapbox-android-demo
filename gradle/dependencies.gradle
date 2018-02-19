@@ -24,7 +24,6 @@ ext {
             // Support
             supportLib         : '26.1.0',
             constraintLayout   : '1.0.2',
-
             firebase        : '11.0.4',
 
             // Square
@@ -40,8 +39,9 @@ ext {
     ]
 
     wearVersion = [
-            googleWearable  :   '2.0.4',
-            googlePlayService : '11.0.4'
+            googleWearable     : '2.0.4',
+            googlePlayService  : '11.0.4',
+            wearableUi         : '27.0.0',
     ]
 
     pluginVersion = [
@@ -98,6 +98,7 @@ ext {
 
     wearDependencies = [
             googleWearable        : "com.google.android.wearable:wearable:${wearVersion.googleWearable}",
+            wearableUi            : "com.android.support:wear:${wearVersion.wearableUi}",
             supportGoogleWearable : "com.google.android.support:wearable:${wearVersion.googleWearable}",
             gpsWearable           : "com.google.android.gms:play-services-wearable:${wearVersion.googlePlayService}",
             gpsLocation           : "com.google.android.gms:play-services-location:${wearVersion.googlePlayService}"

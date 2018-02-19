@@ -27,7 +27,7 @@ public class SimpleMapViewActivity extends WearableActivity {
     // This contains the MapView in XML and needs to be called after the account manager
     setContentView(R.layout.activity_simple_mapview);
 
-    mapView = (MapView) findViewById(R.id.mapView);
+    mapView = findViewById(R.id.mapView);
     mapView.onCreate(savedInstanceState);
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
