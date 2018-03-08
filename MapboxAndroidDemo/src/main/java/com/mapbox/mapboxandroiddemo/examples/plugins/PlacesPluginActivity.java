@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.google.gson.JsonObject;
-import com.mapbox.geocoding.v5.models.CarmenFeature;
+import com.mapbox.api.geocoding.v5.models.CarmenFeature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxandroiddemo.R;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -29,6 +29,11 @@ import com.mapbox.plugins.places.autocomplete.model.PlaceOptions;
 import com.mapbox.services.commons.geojson.Feature;
 import com.mapbox.services.commons.geojson.FeatureCollection;
 
+/**
+ * Use the places plugin to take advantage of Mapbox's location search ("geocoding") capabilities. The plugin
+ * automatically makes geocoding requests, has built-in saved locations, includes location picker functionality,
+ * and adds beautiful UI into your Android project.
+ */
 public class PlacesPluginActivity extends AppCompatActivity implements OnMapReadyCallback {
 
   private static final int REQUEST_CODE_AUTOCOMPLETE = 1;
@@ -63,7 +68,7 @@ public class PlacesPluginActivity extends AppCompatActivity implements OnMapRead
 
     // Add the symbol layer icon to map for future use
     Bitmap icon = BitmapFactory.decodeResource(
-      PlacesPluginActivity.this.getResources(), R.drawable.blue_marker_view);
+        PlacesPluginActivity.this.getResources(), R.drawable.blue_marker_view);
     mapboxMap.addImage(symbolIconId, icon);
 
     // Create an empty GeoJSON source using the empty feature collection
@@ -79,14 +84,14 @@ public class PlacesPluginActivity extends AppCompatActivity implements OnMapRead
       @Override
       public void onClick(View view) {
         Intent intent = new PlaceAutocomplete.IntentBuilder()
-          .accessToken(Mapbox.getAccessToken())
-          .placeOptions(PlaceOptions.builder()
-            .backgroundColor(Color.parseColor("#EEEEEE"))
-            .limit(10)
-            .addInjectedFeature(home)
-            .addInjectedFeature(work)
-            .build(PlaceOptions.MODE_CARDS))
-          .build(PlacesPluginActivity.this);
+            .accessToken(Mapbox.getAccessToken())
+            .placeOptions(PlaceOptions.builder()
+                .backgroundColor(Color.parseColor("#EEEEEE"))
+                .limit(10)
+                .addInjectedFeature(home)
+                .addInjectedFeature(work)
+                .build(PlaceOptions.MODE_CARDS))
+            .build(PlacesPluginActivity.this);
         startActivityForResult(intent, REQUEST_CODE_AUTOCOMPLETE);
       }
     });
@@ -94,18 +99,18 @@ public class PlacesPluginActivity extends AppCompatActivity implements OnMapRead
 
   private void addUserLocations() {
     home = CarmenFeature.builder().text("Mapbox SF Office")
-      .geometry(Point.fromLngLat(-122.399854, 37.7884400))
-      .placeName("85 2nd St, San Francisco, CA")
-      .id("mapbox-sf")
-      .properties(new JsonObject())
-      .build();
+        .geometry(Point.fromLngLat(-122.399854, 37.7884400))
+        .placeName("85 2nd St, San Francisco, CA")
+        .id("mapbox-sf")
+        .properties(new JsonObject())
+        .build();
 
     work = CarmenFeature.builder().text("Mapbox DC Office")
-      .placeName("740 15th Street NW, Washington DC")
-      .geometry(Point.fromLngLat(-77.0338348, 38.899750))
-      .id("mapbox-dc")
-      .properties(new JsonObject())
-      .build();
+        .placeName("740 15th Street NW, Washington DC")
+        .geometry(Point.fromLngLat(-77.0338348, 38.899750))
+        .id("mapbox-dc")
+        .properties(new JsonObject())
+        .build();
   }
 
   private void setUpSource() {
@@ -129,7 +134,7 @@ public class PlacesPluginActivity extends AppCompatActivity implements OnMapRead
 
       // Create a new FeatureCollection and add a new Feature to it using selectedCarmenFeature above
       FeatureCollection featureCollection = FeatureCollection.fromFeatures(
-        new Feature[] {Feature.fromJson(selectedCarmenFeature.toJson())});
+        new Feature[]{Feature.fromJson(selectedCarmenFeature.toJson())});
 
       // Retrieve and update the source designated for showing a selected location's symbol layer icon
       GeoJsonSource source = mapboxMap.getSourceAs(geojsonSourceLayerId);
@@ -139,31 +144,12 @@ public class PlacesPluginActivity extends AppCompatActivity implements OnMapRead
 
       // Move map camera to the selected location
       CameraPosition newCameraPosition = new CameraPosition.Builder()
-        .target(new LatLng(getFeatureLat(selectedCarmenFeature), getFeatureLong(selectedCarmenFeature)))
-        .zoom(14)
-        .build();
-      mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition),4000);
+          .target(new LatLng(((Point) selectedCarmenFeature.geometry()).latitude(),
+              ((Point) selectedCarmenFeature.geometry()).longitude()))
+          .zoom(14)
+          .build();
+      mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition), 4000);
     }
-  }
-
-  // Extracts latitude from single GeoJSON Feature
-  private double getFeatureLat(CarmenFeature singleFeature) {
-    String[] coordinateValues = singleFeature.geometry()
-      .coordinates().toString().replace("Position [", "")
-      .replace(", altitude=NaN]", "").replace("longitude=", "")
-      .replace("]", "")
-      .split(", ");
-    return Double.valueOf(coordinateValues[1].replace("latitude=", ""));
-  }
-
-  // Extracts longitude from single GeoJSON Feature
-  private double getFeatureLong(CarmenFeature singleFeature) {
-    String[] coordinateValues = singleFeature.geometry()
-      .coordinates().toString().replace("Position [", "")
-      .replace(", altitude=NaN]", "").replace("longitude=", "")
-      .replace("[", "")
-      .split(", ");
-    return Double.valueOf(coordinateValues[0]);
   }
 
   // Add the mapView lifecycle to the activity's lifecycle methods
