@@ -54,19 +54,23 @@ import com.mapbox.mapboxandroiddemo.examples.extrusions.Indoor3DMapActivity;
 import com.mapbox.mapboxandroiddemo.examples.extrusions.MarathonExtrusionActivity;
 import com.mapbox.mapboxandroiddemo.examples.extrusions.PopulationDensityExtrusionActivity;
 import com.mapbox.mapboxandroiddemo.examples.extrusions.RotationExtrusionActivity;
-import com.mapbox.mapboxandroiddemo.examples.mas.DirectionsActivity;
-import com.mapbox.mapboxandroiddemo.examples.mas.DirectionsMatrixApiActivity;
-import com.mapbox.mapboxandroiddemo.examples.mas.MapMatchingActivity;
-import com.mapbox.mapboxandroiddemo.examples.mas.OptimizationActivity;
-import com.mapbox.mapboxandroiddemo.examples.mas.SimplifyPolylineActivity;
-import com.mapbox.mapboxandroiddemo.examples.mas.StaticImageActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.DirectionsActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.MapMatchingActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.MatrixApiActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.OptimizationActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.SimplifyPolylineActivity;
+import com.mapbox.mapboxandroiddemo.examples.javaservices.StaticImageActivity;
 import com.mapbox.mapboxandroiddemo.examples.offline.OfflineManagerActivity;
 import com.mapbox.mapboxandroiddemo.examples.offline.SimpleOfflineMapActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.BuildingPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.GeoJsonPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.LocationPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.MarkerClustersPluginActivity;
+<<<<<<< HEAD
 import com.mapbox.mapboxandroiddemo.examples.plugins.OfflinePluginActivity;
+=======
+import com.mapbox.mapboxandroiddemo.examples.plugins.PlacesPluginActivity;
+>>>>>>> master
 import com.mapbox.mapboxandroiddemo.examples.plugins.TrafficPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.ClickOnLayerActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.FeatureCountActivity;
@@ -126,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private Switch analyticsOptOutSwitch;
   private boolean loggedIn;
   private Toolbar toolbar;
-
+  private String categoryTitleForToolbar;
   private AnalyticsTracker analytics;
 
   @Override
@@ -136,7 +140,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     setContentView(R.layout.activity_main);
 
     toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
+
+    if (savedInstanceState == null) {
+      setSupportActionBar(toolbar);
+    }
 
     analytics = AnalyticsTracker.getInstance(this, false);
 
@@ -153,6 +160,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     if (savedInstanceState != null) {
       currentCategory = savedInstanceState.getInt("CURRENT_CATEGORY");
+      categoryTitleForToolbar = savedInstanceState.getString("CURRENT_CATEGORY_TOOLBAR_TITLE");
+      toolbar.setTitle(categoryTitleForToolbar);
       listItems(currentCategory);
     } else if (getIntent().getIntExtra(EXTRA_NAV, -1) == R.id.nav_snapshot_image_generator) {
       currentCategory = R.id.nav_snapshot_image_generator;
@@ -167,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       public void onItemClicked(RecyclerView recyclerView, int position, View view) {
         if (currentCategory == R.id.nav_lab && position == 0) {
           return;
-        } else if (currentCategory == R.id.nav_mas && position == 0) {
+        } else if (currentCategory == R.id.nav_java_services && position == 0) {
           return;
         } else if (currentCategory == R.id.nav_query_map && position == 0) {
           return;
@@ -237,7 +246,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     if (id != currentCategory && id != R.id.settings_in_nav_drawer) {
       listItems(id);
-      toolbar.setTitle(item.getTitle());
+      categoryTitleForToolbar = item.getTitle().toString();
+      toolbar.setTitle(categoryTitleForToolbar);
       analytics.clickedOnNavDrawerSection(
         item.getTitle().toString(), loggedIn);
     }
@@ -399,15 +409,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
           R.string.activity_plugins_location_plugin_url, false, BuildConfig.MIN_SDK_VERSION));
 
         exampleItemModels.add(new ExampleItemModel(
-          R.string.activity_plugins_geojson_plugin_title,
-          R.string.activity_plugins_geojson_plugin_description,
+          R.string.activity_plugins_geojson_plugin_title, R.string.activity_plugins_geojson_plugin_description,
           new Intent(MainActivity.this, GeoJsonPluginActivity.class),
-          R.string.activity_plugins_geojson_plugin_url, false, BuildConfig.MIN_SDK_VERSION)
-        );
+          R.string.activity_plugins_geojson_plugin_url, false, BuildConfig.MIN_SDK_VERSION));
+
+        exampleItemModels.add(new ExampleItemModel(
+          R.string.activity_plugins_places_plugin_title, R.string.activity_plugins_places_plugin_description,
+          new Intent(MainActivity.this, PlacesPluginActivity.class),
+          R.string.activity_plugins_places_plugin_url, true, BuildConfig.MIN_SDK_VERSION));
+
         exampleItemModels.add(new ExampleItemModel(
           R.string.activity_plugins_marker_clusters_plugin_title,
           R.string.activity_plugins_geojson_marker_clusters_description,
           new Intent(MainActivity.this, MarkerClustersPluginActivity.class),
+<<<<<<< HEAD
           R.string.activity_plugins_markers_clusters_plugin_url, true, BuildConfig.MIN_SDK_VERSION)
         );
         exampleItemModels.add(new ExampleItemModel(
@@ -416,6 +431,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
           new Intent(MainActivity.this, OfflinePluginActivity.class),
           R.string.activity_plugins_offline_plugin_url, true, BuildConfig.MIN_SDK_VERSION)
         );
+=======
+          R.string.activity_plugins_markers_clusters_plugin_url, true, BuildConfig.MIN_SDK_VERSION));
+
+>>>>>>> master
         currentCategory = R.id.nav_plugins;
         break;
 
@@ -523,44 +542,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         currentCategory = R.id.nav_query_map;
         break;
-      case R.id.nav_mas:
+      case R.id.nav_java_services:
         exampleItemModels.add(null);
         exampleItemModels.add(new ExampleItemModel(
-          R.string.activity_mas_simplify_polyline_title,
-          R.string.activity_mas_simplify_polyline_description,
+          R.string.activity_java_services_simplify_polyline_title,
+          R.string.activity_java_services_simplify_polyline_description,
           new Intent(MainActivity.this, SimplifyPolylineActivity.class),
-          R.string.activity_mas_simplify_polyline_url, false, BuildConfig.MIN_SDK_VERSION));
+          R.string.activity_java_services_simplify_polyline_url, false, BuildConfig.MIN_SDK_VERSION));
 
         exampleItemModels.add(new ExampleItemModel(
-          R.string.activity_mas_map_matching_title,
-          R.string.activity_mas_map_matching_description,
+          R.string.activity_java_services_map_matching_title,
+          R.string.activity_java_services_map_matching_description,
           new Intent(MainActivity.this, MapMatchingActivity.class),
-          R.string.activity_mas_map_matching_url, false, BuildConfig.MIN_SDK_VERSION));
+          R.string.activity_java_services_map_matching_url, false, BuildConfig.MIN_SDK_VERSION));
 
         exampleItemModels.add(new ExampleItemModel(
-          R.string.activity_mas_directions_title,
-          R.string.activity_mas_directions_description,
+          R.string.activity_java_services_directions_title,
+          R.string.activity_java_services_directions_description,
           new Intent(MainActivity.this, DirectionsActivity.class),
-          R.string.activity_mas_directions_url, false, BuildConfig.MIN_SDK_VERSION));
+          R.string.activity_java_services_directions_url, false, BuildConfig.MIN_SDK_VERSION));
 
         exampleItemModels.add(new ExampleItemModel(
-          R.string.activity_mas_optimization_title,
-          R.string.activity_mas_optimization_description,
+          R.string.activity_java_services_optimization_title,
+          R.string.activity_java_services_optimization_description,
           new Intent(MainActivity.this, OptimizationActivity.class),
-          R.string.activity_mas_optimization_url, false, BuildConfig.MIN_SDK_VERSION));
+          R.string.activity_java_services_optimization_url, false, BuildConfig.MIN_SDK_VERSION));
 
         exampleItemModels.add(new ExampleItemModel(
-          R.string.activity_mas_static_image_title,
-          R.string.activity_mas_static_image_description,
+          R.string.activity_java_services_static_image_title,
+          R.string.activity_java_services_static_image_description,
           new Intent(MainActivity.this, StaticImageActivity.class),
-          R.string.activity_mas_static_image_url, false, BuildConfig.MIN_SDK_VERSION));
+          R.string.activity_java_services_static_image_url, false, BuildConfig.MIN_SDK_VERSION));
 
         exampleItemModels.add(new ExampleItemModel(
-          R.string.activity_mas_maxtrix_api_title,
-          R.string.activity_mas_matrix_api_description,
-          new Intent(MainActivity.this, DirectionsMatrixApiActivity.class),
-          R.string.activity_mas_matrix_url));
-        currentCategory = R.id.nav_mas;
+          R.string.activity_java_services_maxtrix_api_title,
+          R.string.activity_java_services_matrix_api_description,
+          new Intent(MainActivity.this, MatrixApiActivity.class),
+          R.string.activity_java_services_matrix_url));
+        currentCategory = R.id.nav_java_services;
         break;
       case R.id.nav_snapshot_image_generator:
         exampleItemModels.add(new ExampleItemModel(
@@ -775,6 +794,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putInt("CURRENT_CATEGORY", currentCategory);
+    outState.putString("CURRENT_CATEGORY_TOOLBAR_TITLE", categoryTitleForToolbar);
   }
 
   private void checkForFirstTimeOpen() {
