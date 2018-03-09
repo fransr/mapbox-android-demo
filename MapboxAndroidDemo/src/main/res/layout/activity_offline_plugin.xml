@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/tools">
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
@@ -13,5 +14,13 @@
         mapbox:mapbox_cameraZoom="9.405250"
         mapbox:mapbox_styleUrl="mapbox://styles/mapbox/cj7t3i5yj0unt2rmt3y4b5e32" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/download_region_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_file_download_white_24dp"
+        mapbox:fab_size="normal" />
 
-</android.support.constraint.ConstraintLayout>
+</FrameLayout>

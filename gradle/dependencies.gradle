@@ -18,7 +18,7 @@ ext {
             mapboxPluginTraffic      : '0.4.0-SNAPSHOT',
             mapboxPluginMarkerCluster: '0.1.0',
             mapboxPluginPlaces       : '0.2.1',
-            mapboxPluginOffline : '0.1.0',
+            mapboxPluginOffline      : '0.1.0',
 
             // Support
             supportLib               : '26.1.0',
@@ -61,7 +61,7 @@ ext {
             mapboxPluginGeoJson      : "com.mapbox.mapboxsdk:mapbox-android-plugin-geojson:${version.mapboxPluginGeoJson}",
             mapboxPluginMarkerCluster: "com.mapbox.mapboxsdk:mapbox-android-plugin-cluster-utils:${version.mapboxPluginMarkerCluster}",
             mapboxPluginPlaces       : "com.mapbox.mapboxsdk:mapbox-android-plugin-places:${version.mapboxPluginPlaces}",
-            mapboxPluginOffline 	  : "com.mapbox.mapboxsdk:mapbox-android-plugin-offline:${version.mapboxPluginOffline}",
+            mapboxPluginOffline      : "com.mapbox.mapboxsdk:mapbox-android-plugin-offline:${version.mapboxPluginOffline}",
 
             // Support
             supportV4                : "com.android.support:support-v4:${version.supportLib}",
