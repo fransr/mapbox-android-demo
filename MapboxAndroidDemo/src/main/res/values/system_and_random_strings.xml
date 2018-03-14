@@ -29,7 +29,8 @@
     <string name="loading_snapshot_image">Loading snapshot image</string>
 
     <!-- home screen widget textview -->
-    <string name="widget_title">Mapbox Demo App – Your location:</string>
+    <string name="widget_title">Your location:</string>
+    <string name="widget_unknown_location">Unknown location</string>
 
     <!-- toolbar items -->
     <string name="info">Info</string>
