@@ -64,13 +64,11 @@ import com.mapbox.mapboxandroiddemo.examples.offline.OfflineManagerActivity;
 import com.mapbox.mapboxandroiddemo.examples.offline.SimpleOfflineMapActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.BuildingPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.GeoJsonPluginActivity;
+import com.mapbox.mapboxandroiddemo.examples.plugins.LocalizationPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.LocationPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.plugins.MarkerClustersPluginActivity;
-<<<<<<< HEAD
 import com.mapbox.mapboxandroiddemo.examples.plugins.OfflinePluginActivity;
-=======
 import com.mapbox.mapboxandroiddemo.examples.plugins.PlacesPluginActivity;
->>>>>>> master
 import com.mapbox.mapboxandroiddemo.examples.plugins.TrafficPluginActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.ClickOnLayerActivity;
 import com.mapbox.mapboxandroiddemo.examples.query.FeatureCountActivity;
@@ -422,7 +420,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
           R.string.activity_plugins_marker_clusters_plugin_title,
           R.string.activity_plugins_geojson_marker_clusters_description,
           new Intent(MainActivity.this, MarkerClustersPluginActivity.class),
-<<<<<<< HEAD
           R.string.activity_plugins_markers_clusters_plugin_url, true, BuildConfig.MIN_SDK_VERSION)
         );
         exampleItemModels.add(new ExampleItemModel(
@@ -431,10 +428,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
           new Intent(MainActivity.this, OfflinePluginActivity.class),
           R.string.activity_plugins_offline_plugin_url, true, BuildConfig.MIN_SDK_VERSION)
         );
-=======
-          R.string.activity_plugins_markers_clusters_plugin_url, true, BuildConfig.MIN_SDK_VERSION));
-
->>>>>>> master
+        exampleItemModels.add(new ExampleItemModel(
+          R.string.activity_plugins_localization_plugin_title,
+          R.string.activity_plugins_localization_plugin_description,
+          new Intent(MainActivity.this, LocalizationPluginActivity.class),
+          R.string.activity_plugins_localization_plugin_url, true, BuildConfig.MIN_SDK_VERSION)
+        );
         currentCategory = R.id.nav_plugins;
         break;
 

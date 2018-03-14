@@ -19,6 +19,7 @@ ext {
             mapboxPluginMarkerCluster: '0.1.0',
             mapboxPluginPlaces       : '0.2.1',
             mapboxPluginOffline      : '0.1.0',
+            mapboxPluginLocalization : '0.1.0',
 
             // Support
             supportLib               : '26.1.0',
@@ -55,6 +56,7 @@ ext {
             mapboxTurf               : "com.mapbox.mapboxsdk:mapbox-sdk-turf:${version.mapboxTurf}",
             mapboGeoJson             : "com.mapbox.mapboxsdk:mapbox-sdk-geojson:${version.mapboGeoJson}",
 
+            // Mapbox plugins
             mapboxPluginLocationLayer: "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:${version.mapboxPluginLocationLayer}",
             mapboxPluginBuilding     : "com.mapbox.mapboxsdk:mapbox-android-plugin-building:${version.mapboxPluginBuilding}",
             mapboxPluginTraffic      : "com.mapbox.mapboxsdk:mapbox-android-plugin-traffic:${version.mapboxPluginTraffic}",
@@ -62,6 +64,7 @@ ext {
             mapboxPluginMarkerCluster: "com.mapbox.mapboxsdk:mapbox-android-plugin-cluster-utils:${version.mapboxPluginMarkerCluster}",
             mapboxPluginPlaces       : "com.mapbox.mapboxsdk:mapbox-android-plugin-places:${version.mapboxPluginPlaces}",
             mapboxPluginOffline      : "com.mapbox.mapboxsdk:mapbox-android-plugin-offline:${version.mapboxPluginOffline}",
+            mapboxPluginLocalization : "com.mapbox.mapboxsdk:mapbox-android-plugin-localization:${version.mapboxPluginLocalization}",
 
             // Support
             supportV4                : "com.android.support:support-v4:${version.supportLib}",
