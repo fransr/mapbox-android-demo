@@ -125,23 +125,17 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
     reverseGeocode.enqueueCall(new Callback<GeocodingResponse>() {
       @Override
       public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
-
-        Log.d(TAG, "onResponse: ");
-
         String placeName = response.body().features()
           .get(0).placeName();
-
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
-        remoteViews.setTextViewText(R.id.device_location_textview, placeName);
-
-        AppWidgetManager manager = AppWidgetManager.getInstance(context);
-
-        manager.updateAppWidget(singleWidgetId, remoteViews);
-
-//        new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget)
-//          .setTextViewText(R.id.device_location_textview, context.getString(R.string.widget_unknown_location));
+        if (placeName != null) {
+          RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
+          remoteViews.setTextViewText(R.id.device_location_textview, placeName);
+          AppWidgetManager.getInstance(context).updateAppWidget(singleWidgetId, remoteViews);
+        } else {
+          new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget)
+            .setTextViewText(R.id.device_location_textview, context.getString(R.string.widget_unknown_location));
+        }
       }
-
       @Override
       public void onFailure(Call<GeocodingResponse> call, Throwable throwable) {
         Log.d(TAG, "onFailure: geocoding failure");
