@@ -6,6 +6,8 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.location.Location;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -38,20 +40,26 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   private PermissionsManager permissionsManager;
   private LocationEngine locationEngine;
   private Context context;
+  private String TAG = "DemoAppHomeScreenWidget";
+  private int singleWidgetId;
 
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
     this.context = context;
+    this.singleWidgetId = appWidgetIds[0];
     updateAppWidget(context, appWidgetManager, appWidgetIds[0]);
     enableLocationPlugin();
   }
 
   private void enableLocationPlugin() {
+    Log.d(TAG, "enableLocationPlugin: starting");
     // Check if permissions are enabled and if not request
     if (PermissionsManager.areLocationPermissionsGranted(context)) {
+      Log.d(TAG, "enableLocationPlugin: permissions already granted");
       // Create a location engine instance
       initializeLocationEngine();
     } else {
+      Log.d(TAG, "enableLocationPlugin: permissions not granted yet");
       permissionsManager = new PermissionsManager(this);
       permissionsManager.requestLocationPermissions(getActivity(context));
     }
@@ -59,15 +67,21 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
 
   @SuppressWarnings( {"MissingPermission"})
   private void initializeLocationEngine() {
+    Log.d(TAG, "initializeLocationEngine: starting");
     locationEngine = new LocationEngineProvider(context).obtainBestLocationEngineAvailable();
     locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
     locationEngine.activate();
+    Log.d(TAG, "initializeLocationEngine: locationEngine.activate();");
 
     Location lastLocation = locationEngine.getLastLocation();
 
     if (lastLocation != null) {
-      getAddress(lastLocation);
+      Log.d(TAG, "initializeLocationEngine: lastLocation != null");
+//      getAddress(lastLocation);
     } else {
+      Log.d(TAG, "initializeLocationEngine: lastLocation == null");
+      getAddress(null, 38.899463, -77.033308);
+
       locationEngine.addLocationEngineListener(this);
     }
   }
@@ -96,32 +110,41 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
     appWidgetManager.updateAppWidget(appWidgetId, views);
   }
 
-  private void getAddress(Location currentDeviceLocation) {
+  private void getAddress(@Nullable Location currentDeviceLocation, @Nullable double longitude,
+                          @Nullable double latitude) {
+
+    Log.d(TAG, "getAddress: starting");
 
     // Build a Mapbox reverse geocode request.
     MapboxGeocoding reverseGeocode = MapboxGeocoding.builder()
-      .accessToken(Mapbox.getAccessToken())
-      .query(Point.fromLngLat(currentDeviceLocation.getLongitude(),
-        currentDeviceLocation.getLatitude()))
-      .geocodingTypes(GeocodingCriteria.TYPE_ADDRESS)
+      .accessToken(context.getString(R.string.access_token))
+      .query(Point.fromLngLat(latitude, longitude))
+      .geocodingTypes(GeocodingCriteria.TYPE_COUNTRY)
       .build();
 
     reverseGeocode.enqueueCall(new Callback<GeocodingResponse>() {
       @Override
       public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
-        List<CarmenFeature> reverseGeocodingResults = response.body().features();
-        if (reverseGeocodingResults.size() > 0) {
-          String currentLocationAddress = reverseGeocodingResults.get(1).address();
-          new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget)
-            .setTextViewText(R.id.device_location_textview, currentLocationAddress);
-        } else {
-          new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget)
-            .setTextViewText(R.id.device_location_textview, context.getString(R.string.widget_unknown_location));
-        }
+
+        Log.d(TAG, "onResponse: ");
+
+        String placeName = response.body().features()
+          .get(0).placeName();
+
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
+        remoteViews.setTextViewText(R.id.device_location_textview, placeName);
+
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+
+        manager.updateAppWidget(singleWidgetId, remoteViews);
+
+//        new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget)
+//          .setTextViewText(R.id.device_location_textview, context.getString(R.string.widget_unknown_location));
       }
 
       @Override
       public void onFailure(Call<GeocodingResponse> call, Throwable throwable) {
+        Log.d(TAG, "onFailure: geocoding failure");
         throwable.printStackTrace();
       }
     });
@@ -136,10 +159,6 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   @Override
   public void onDisabled(Context context) {
     // TODO: Enter relevant functionality for when the last widget is disabled
-    if (locationEngine != null) {
-      locationEngine.removeLocationUpdates();
-      locationEngine.deactivate();
-    }
   }
 
   @Override
@@ -150,7 +169,7 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   @Override
   public void onLocationChanged(Location location) {
     if (location != null) {
-      getAddress(location);
+//      getAddress(location);
     }
   }
 
