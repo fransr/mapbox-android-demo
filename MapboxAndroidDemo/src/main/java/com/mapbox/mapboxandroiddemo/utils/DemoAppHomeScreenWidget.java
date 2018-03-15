@@ -3,15 +3,14 @@ package com.mapbox.mapboxandroiddemo.utils;
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.location.Location;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import com.mapbox.api.geocoding.v5.GeocodingCriteria;
 import com.mapbox.api.geocoding.v5.MapboxGeocoding;
 import com.mapbox.api.geocoding.v5.models.GeocodingResponse;
 import com.mapbox.geojson.Point;
@@ -40,12 +39,14 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   private Context context;
   private String TAG = "DemoAppHomeScreenWidget";
   private int singleWidgetId;
+  private Location lastLocation;
 
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
     Log.d(TAG, "onUpdate: ");
-    this.singleWidgetId = appWidgetIds[0];
 
+    this.singleWidgetId = appWidgetIds[0];
+    this.context = context;
 //    enableLocationPlugin();
 
    /* // Construct the RemoteViews object
@@ -59,9 +60,7 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   public void onEnabled(Context context) {
     Log.d(TAG, "onEnabled: ");
     this.context = context;
-    // TODO: Enter relevant functionality for when the first widget is created
     enableLocationPlugin();
-
   }
 
   @Override
@@ -95,15 +94,9 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
     locationEngine.activate();
     Log.d(TAG, "initializeLocationEngine: locationEngine.activate();");
 
-    if (locationEngine.getLastLocation() != null) {
-      Log.d(TAG, "initializeLocationEngine: lastLocation != null");
-      getReverseGeocodeData(locationEngine.getLastLocation(), 41.403420,2.174517);
-    } else {
-      Log.d(TAG, "initializeLocationEngine: lastLocation == null");
-      getReverseGeocodeData(locationEngine.getLastLocation(), 41.403420,2.174517);
+    lastLocation = locationEngine.getLastLocation();
 
-      locationEngine.addLocationEngineListener(this);
-    }
+    getReverseGeocodeData(lastLocation);
   }
 
   public Activity getActivity(Context context) {
@@ -119,34 +112,49 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
     return null;
   }
 
-  private void getReverseGeocodeData(@Nullable Location currentDeviceLocation, @Nullable double longitude,
-                                     @Nullable double latitude) {
+  private void getReverseGeocodeData(Location currentDeviceLocation) {
 
     Log.d(TAG, "getReverseGeocodeData: starting");
 
     Log.d(TAG, "getReverseGeocodeData: currentDeviceLocation.getLatitude() = " + currentDeviceLocation.getLatitude());
     Log.d(TAG, "getReverseGeocodeData: currentDeviceLocation.getLongitude() = " + currentDeviceLocation.getLongitude());
+
     // Build a Mapbox reverse geocode request.
     MapboxGeocoding reverseGeocode = MapboxGeocoding.builder()
       .accessToken(context.getString(R.string.access_token))
-      .query(Point.fromLngLat(currentDeviceLocation.getLatitude(), currentDeviceLocation.getLongitude()))
+      .query(Point.fromLngLat(-122.40001555, 37.78774203))
       .build();
 
     reverseGeocode.enqueueCall(new Callback<GeocodingResponse>() {
       @Override
       public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
-        Log.d(TAG, "onResponse: response.body() = " + response.body().features().get(0).toString());
-        Log.d(TAG, "onResponse: response.body().features().get(0).placeName() = " + response.body().features().get(0).placeName());
+        Log.d(TAG, "onResponse: response.body() = " + response.body());
 
-        String placeName = response.body().features()
-          .get(0).placeName();
-        if (placeName != null) {
+
+        if (response.body().features().size() > 0 && !response.body().features().get(0).placeName().isEmpty()) {
+
+          Log.d(TAG, "onResponse: response.body().features().get(0).placeName() = " +
+            response.body().features().get(0).placeName());
+/*
+
           RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
-          remoteViews.setTextViewText(R.id.device_location_textview, placeName);
+          remoteViews.setTextViewText(R.id.device_location_textview,
+            response.body().features().get(0).placeName());
           AppWidgetManager.getInstance(context).updateAppWidget(singleWidgetId, remoteViews);
+*/
+
+          AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+
+          RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
+          appWidgetManager.updateAppWidget(new ComponentName(context, DemoAppHomeScreenWidget.class), views);
+
+
         } else {
+          RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
           new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget)
             .setTextViewText(R.id.device_location_textview, context.getString(R.string.widget_unknown_location));
+          AppWidgetManager.getInstance(context).updateAppWidget(singleWidgetId, remoteViews);
+
         }
       }
 
@@ -171,7 +179,11 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   @Override
   public void onLocationChanged(Location location) {
     if (location != null) {
+      Log.d(TAG, "initializeLocationEngine: lastLocation != null");
 //      getReverseGeocodeData(location);
+    } else {
+      Log.d(TAG, "initializeLocationEngine: lastLocation == null");
+//      locationEngine.addLocationEngineListener(this);
     }
   }
 
@@ -179,7 +191,5 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   public void onExplanationNeeded(List<String> permissionsToExplain) {
 
   }
-
-
 }
 
