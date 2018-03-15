@@ -1,4 +1,4 @@
-package com.mapbox.mapboxandroiddemo.examples.basics;
+package com.mapbox.mapboxandroiddemo.utils;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
@@ -13,11 +13,9 @@ import android.widget.Toast;
 
 import com.mapbox.api.geocoding.v5.GeocodingCriteria;
 import com.mapbox.api.geocoding.v5.MapboxGeocoding;
-import com.mapbox.api.geocoding.v5.models.CarmenFeature;
 import com.mapbox.api.geocoding.v5.models.GeocodingResponse;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxandroiddemo.R;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.services.android.telemetry.location.LocationEngine;
 import com.mapbox.services.android.telemetry.location.LocationEngineListener;
 import com.mapbox.services.android.telemetry.location.LocationEnginePriority;
@@ -45,10 +43,34 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
 
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-    this.context = context;
+    Log.d(TAG, "onUpdate: ");
     this.singleWidgetId = appWidgetIds[0];
-    updateAppWidget(context, appWidgetManager, appWidgetIds[0]);
+
+//    enableLocationPlugin();
+
+   /* // Construct the RemoteViews object
+    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
+
+    // Instruct the widget manager to update the widget
+    appWidgetManager.updateAppWidget(appWidgetIds[0], views);*/
+  }
+
+  @Override
+  public void onEnabled(Context context) {
+    Log.d(TAG, "onEnabled: ");
+    this.context = context;
+    // TODO: Enter relevant functionality for when the first widget is created
     enableLocationPlugin();
+
+  }
+
+  @Override
+  public void onPermissionResult(boolean granted) {
+    if (granted) {
+      initializeLocationEngine();
+    } else {
+      Toast.makeText(context, R.string.user_location_permission_not_granted, Toast.LENGTH_SHORT).show();
+    }
   }
 
   private void enableLocationPlugin() {
@@ -73,14 +95,12 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
     locationEngine.activate();
     Log.d(TAG, "initializeLocationEngine: locationEngine.activate();");
 
-    Location lastLocation = locationEngine.getLastLocation();
-
-    if (lastLocation != null) {
+    if (locationEngine.getLastLocation() != null) {
       Log.d(TAG, "initializeLocationEngine: lastLocation != null");
-//      getAddress(lastLocation);
+      getReverseGeocodeData(locationEngine.getLastLocation(), 41.403420,2.174517);
     } else {
       Log.d(TAG, "initializeLocationEngine: lastLocation == null");
-      getAddress(null, 38.899463, -77.033308);
+      getReverseGeocodeData(locationEngine.getLastLocation(), 41.403420,2.174517);
 
       locationEngine.addLocationEngineListener(this);
     }
@@ -96,35 +116,28 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
         return getActivity(((ContextWrapper) context).getBaseContext());
       }
     }
-
     return null;
   }
 
-  static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                              int appWidgetId) {
+  private void getReverseGeocodeData(@Nullable Location currentDeviceLocation, @Nullable double longitude,
+                                     @Nullable double latitude) {
 
-    // Construct the RemoteViews object
-    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
+    Log.d(TAG, "getReverseGeocodeData: starting");
 
-    // Instruct the widget manager to update the widget
-    appWidgetManager.updateAppWidget(appWidgetId, views);
-  }
-
-  private void getAddress(@Nullable Location currentDeviceLocation, @Nullable double longitude,
-                          @Nullable double latitude) {
-
-    Log.d(TAG, "getAddress: starting");
-
+    Log.d(TAG, "getReverseGeocodeData: currentDeviceLocation.getLatitude() = " + currentDeviceLocation.getLatitude());
+    Log.d(TAG, "getReverseGeocodeData: currentDeviceLocation.getLongitude() = " + currentDeviceLocation.getLongitude());
     // Build a Mapbox reverse geocode request.
     MapboxGeocoding reverseGeocode = MapboxGeocoding.builder()
       .accessToken(context.getString(R.string.access_token))
-      .query(Point.fromLngLat(latitude, longitude))
-      .geocodingTypes(GeocodingCriteria.TYPE_COUNTRY)
+      .query(Point.fromLngLat(currentDeviceLocation.getLatitude(), currentDeviceLocation.getLongitude()))
       .build();
 
     reverseGeocode.enqueueCall(new Callback<GeocodingResponse>() {
       @Override
       public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
+        Log.d(TAG, "onResponse: response.body() = " + response.body().features().get(0).toString());
+        Log.d(TAG, "onResponse: response.body().features().get(0).placeName() = " + response.body().features().get(0).placeName());
+
         String placeName = response.body().features()
           .get(0).placeName();
         if (placeName != null) {
@@ -136,18 +149,13 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
             .setTextViewText(R.id.device_location_textview, context.getString(R.string.widget_unknown_location));
         }
       }
+
       @Override
       public void onFailure(Call<GeocodingResponse> call, Throwable throwable) {
         Log.d(TAG, "onFailure: geocoding failure");
         throwable.printStackTrace();
       }
     });
-  }
-
-  @Override
-  public void onEnabled(Context context) {
-    // TODO: Enter relevant functionality for when the first widget is created
-
   }
 
   @Override
@@ -163,7 +171,7 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   @Override
   public void onLocationChanged(Location location) {
     if (location != null) {
-//      getAddress(location);
+//      getReverseGeocodeData(location);
     }
   }
 
@@ -172,13 +180,6 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
 
   }
 
-  @Override
-  public void onPermissionResult(boolean granted) {
-    if (granted) {
-      enableLocationPlugin();
-    } else {
-      Toast.makeText(context, R.string.user_location_permission_not_granted, Toast.LENGTH_SHORT).show();
-    }
-  }
+
 }
 

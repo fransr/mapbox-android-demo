@@ -540,7 +540,7 @@
             android:name=".account.LoadingActivity"
             android:screenOrientation="portrait" />
 
-        <receiver android:name=".examples.basics.DemoAppHomeScreenWidget">
+        <receiver android:name=".utils.DemoAppHomeScreenWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
