@@ -3,7 +3,6 @@ package com.mapbox.mapboxandroiddemo.utils;
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.location.Location;
@@ -40,12 +39,15 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   private String TAG = "DemoAppHomeScreenWidget";
   private int singleWidgetId;
   private Location lastLocation;
+  private AppWidgetManager appWidgetManager;
 
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
     Log.d(TAG, "onUpdate: ");
-
     this.singleWidgetId = appWidgetIds[0];
+    Log.d(TAG, "onUpdate: singleWidgetId = " + singleWidgetId);
+    this.appWidgetManager = appWidgetManager;
+    Log.d(TAG, "onUpdate: appWidgetManager.getAppWidgetInfo(singleWidgetId) = " + appWidgetManager.getAppWidgetInfo(singleWidgetId));
     this.context = context;
 //    enableLocationPlugin();
 
@@ -54,31 +56,32 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetIds[0], views);*/
+
+    enableLocationPlugin(context);
+
   }
 
   @Override
   public void onEnabled(Context context) {
     Log.d(TAG, "onEnabled: ");
-    this.context = context;
-    enableLocationPlugin();
   }
 
   @Override
   public void onPermissionResult(boolean granted) {
     if (granted) {
-      initializeLocationEngine();
+      initializeLocationEngine(context);
     } else {
       Toast.makeText(context, R.string.user_location_permission_not_granted, Toast.LENGTH_SHORT).show();
     }
   }
 
-  private void enableLocationPlugin() {
+  private void enableLocationPlugin(Context context) {
     Log.d(TAG, "enableLocationPlugin: starting");
     // Check if permissions are enabled and if not request
     if (PermissionsManager.areLocationPermissionsGranted(context)) {
       Log.d(TAG, "enableLocationPlugin: permissions already granted");
       // Create a location engine instance
-      initializeLocationEngine();
+      initializeLocationEngine(context);
     } else {
       Log.d(TAG, "enableLocationPlugin: permissions not granted yet");
       permissionsManager = new PermissionsManager(this);
@@ -87,7 +90,7 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
   }
 
   @SuppressWarnings( {"MissingPermission"})
-  private void initializeLocationEngine() {
+  private void initializeLocationEngine(Context context) {
     Log.d(TAG, "initializeLocationEngine: starting");
     locationEngine = new LocationEngineProvider(context).obtainBestLocationEngineAvailable();
     locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
@@ -96,7 +99,7 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
 
     lastLocation = locationEngine.getLastLocation();
 
-    getReverseGeocodeData(lastLocation);
+    getReverseGeocodeData(lastLocation, context);
   }
 
   public Activity getActivity(Context context) {
@@ -112,7 +115,7 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
     return null;
   }
 
-  private void getReverseGeocodeData(Location currentDeviceLocation) {
+  private void getReverseGeocodeData(Location currentDeviceLocation, final Context finalContext) {
 
     Log.d(TAG, "getReverseGeocodeData: starting");
 
@@ -121,7 +124,7 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
 
     // Build a Mapbox reverse geocode request.
     MapboxGeocoding reverseGeocode = MapboxGeocoding.builder()
-      .accessToken(context.getString(R.string.access_token))
+      .accessToken(finalContext.getString(R.string.access_token))
       .query(Point.fromLngLat(-122.40001555, 37.78774203))
       .build();
 
@@ -135,26 +138,21 @@ public class DemoAppHomeScreenWidget extends AppWidgetProvider implements Locati
 
           Log.d(TAG, "onResponse: response.body().features().get(0).placeName() = " +
             response.body().features().get(0).placeName());
-/*
 
-          RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
-          remoteViews.setTextViewText(R.id.device_location_textview,
-            response.body().features().get(0).placeName());
-          AppWidgetManager.getInstance(context).updateAppWidget(singleWidgetId, remoteViews);
-*/
+          Log.d(TAG, "onResponse: response.body().features().get(0).id() = " +
+            response.body().features().get(0).id());
 
-          AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+          // Construct the RemoteViews object
+          RemoteViews views = new RemoteViews(finalContext.getPackageName(), R.layout.demo_app_home_screen_widget);
+          views.setTextViewText(R.id.textView, response.body().features().get(0).placeName());
 
-          RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
-          appWidgetManager.updateAppWidget(new ComponentName(context, DemoAppHomeScreenWidget.class), views);
+          Log.d(TAG, "onResponse: " + finalContext != null ? "not null" : "null");
+          // Instruct the widget manager to update the widget
+          appWidgetManager.updateAppWidget(singleWidgetId, views);
 
 
         } else {
-          RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget);
-          new RemoteViews(context.getPackageName(), R.layout.demo_app_home_screen_widget)
-            .setTextViewText(R.id.device_location_textview, context.getString(R.string.widget_unknown_location));
-          AppWidgetManager.getInstance(context).updateAppWidget(singleWidgetId, remoteViews);
-
+        Log.d(TAG, "onResponse: no place name");
         }
       }
 
