@@ -3,7 +3,7 @@
     android:initialLayout="@layout/demo_app_home_screen_widget"
     android:minHeight="250dp"
     android:minWidth="180dp"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@drawable/mapbox_geocode_widget_preview"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="10000"
     android:widgetCategory="home_screen" />
